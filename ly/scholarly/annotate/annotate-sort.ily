@@ -1,0 +1,54 @@
+%%%%%%%%%%
+% comparison operators for sorting annotations by different properties
+
+% compare by rhythmic location
+#(define (annotation-earlier? ann-a ann-b)
+   (let*
+    ((loc-a (assoc-ref ann-a "rhythmic-location"))
+     (ma (car loc-a))
+     (pa (cdr loc-a))
+     (loc-b (assoc-ref ann-b "rhythmic-location"))
+     (mb (car loc-b))
+     (pb (cdr loc-b)))
+    (cond
+     ((< ma mb) #t)
+     ((> ma mb) #f)
+     (else (ly:moment<? pa pb)))))
+
+% compare by author
+#(define (annotation-less-than-by-author? ann-a ann-b)
+   (string<?
+    (assoc-ref ann-a "author")
+    (assoc-ref ann-b "author")))
+
+% compare by annotation type
+#(define (annotation-less-than-by-type? ann-a ann-b)
+   (string<?
+    (assoc-ref ann-a "type")
+    (assoc-ref ann-b "type")))
+
+% Criteria by which annotations are to be sorted.
+% This is a list of keywords which can be set directly
+% By default sort annotations in chronological order
+#(cond ((not (defined? 'annotation-sort-criteria))
+        (define annotation-sort-criteria
+          '("rhythmic-location"))))
+% Example: order by type and then by author
+%#(set! annotation-sort-criteria '("type" "author"))
+
+% Lookup list from which the predicate procedures are retrieved
+#(define annotation-comparison-predicates
+   `(("rhythmic-location" . ,annotation-earlier?)
+     ("author" . ,annotation-less-than-by-author?)
+     ("type" . ,annotation-less-than-by-type?)))
+
+% Return a sorted list of annotations
+%
+% TODO:
+% It has to be decided whether this will actually be needed.
+% Currently it works quite well to iterate directly within the engraver.
+% This function is only necessary when there will be more code inside.
+%
+#(define (sort-annotations annotations predicate)
+   (stable-sort annotations predicate))
+
