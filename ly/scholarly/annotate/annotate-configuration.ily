@@ -6,6 +6,11 @@
 % fundamental behaviour
 %%%%%%%%%%%%%%%%%%%%%%%
 
+% String list predicate
+#(define (stringlist? obj)
+   (and (list? obj)
+        (every string? obj)))
+
 %%%%%%%%%%%%%%%%
 % Console output
 
@@ -24,25 +29,22 @@ printAnnotations =
 % File export
 
 % initialize empty configuration variable
-#(cond ((not (defined? 'export-annotations))
-        (define export-annotations #f)))
+#(cond ((not (defined? 'annotation-export-targets))
+        (define annotation-export-targets '())))
 
-% Convenience function for switching annotation export
-% Specify ##t or ##f to switch on/off
-exportAnnotations =
-#(define-scheme-function (parser location active)
-   (boolean?)
-   (set! export-annotations active))
+% Convenience function to select output targets
+% Provide a list with strings. These have to match
+% an item in the export-routines alist defined in the main file.
+setAnnotationExportTargets =
+#(define-void-function (parser location targets)
+   (stringlist?)
+   (set! annotation-export-targets targets))
 
 %%%%%%%%%%%%%%%%%
 % Limiting output
 
 % Filter list to ignore annotation types before they are even created.
 #(define ignored-annotation-types '())
-
-#(define (stringlist? obj)
-   (and (list? obj)
-        (every string? obj)))
 
 % Convenience function to set the list of ignored annotation types.
 % Strings passed in the stringlist argument should match existing

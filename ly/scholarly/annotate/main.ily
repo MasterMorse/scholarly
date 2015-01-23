@@ -158,6 +158,13 @@ annotationCollector =
              (set! annotations (append annotations (list annotation)))))
          (reverse grobs)))))))
 
+% Define a lookup list for existing export procedures.
+% While this might be expected to be defined in the configuration
+% file it has to be inserted *after* the procedures have been defined
+#(define export-routines
+   `(("latex" . ,export-annotations-latex)
+     ("plaintext" . ,export-annotations-plaintext)))
+
 % When the score is finalized this engraver
 % processes the list of annotations and produces
 % appropriate output.
@@ -173,17 +180,20 @@ annotationProcessor =
                 (assoc-ref annotation-comparison-predicates s))))
       (reverse annotation-sort-criteria))
 
-     ;; Then output the entries
-     ;; depending on the output target(s)
+     ;; Optionally print annotations
      (if print-annotations
          (do-print-annotations))
-     (if export-annotations
-         ;
-         ; TODO:
-         ; the call to the procedure is still hard-coded
-         ; and has to be made configurable
-         ;
-         (do-log-annotations-latex)))))
+     ;; Export iterating over all entries in the
+     ;; annotation-export-targets configuration list
+     (for-each
+      (lambda (t)
+        (let
+         ((er (assoc-ref export-routines t)))
+         ;; skip invalid entries
+         (if er 
+             (er)
+             (ly:warning (format "Invalid annotation export target: ~a" t)))))
+      annotation-export-targets))))
 
 \layout {
   \context {

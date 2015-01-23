@@ -4,7 +4,7 @@
 
 
 % Generate and write annotations to one or more log files
-#(define (do-log-annotations-plaintext)
+#(define (export-annotations-plaintext)
    ;
    ; TODO::
    ; - implement configurable grouping options

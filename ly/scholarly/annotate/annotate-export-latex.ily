@@ -69,7 +69,7 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
      result))
 
 % Generate and write annotations to a LaTeX file
-#(define (do-log-annotations-latex)
+#(define (export-annotations-latex)
    ;
    ; TODO::
    ; - implement configurable grouping options
