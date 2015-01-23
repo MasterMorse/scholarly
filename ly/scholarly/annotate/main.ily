@@ -204,19 +204,8 @@ annotationProcessor =
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Keep this function for backward compatibility with existing input
+
 annotate =
-#(define-music-function (parser location properties item)
-   (ly:context-mod? symbol-list-or-music?)
-
-   ;; issue a warning
-   (ly:input-warning location "Deprecated \\annotate")
-
-   ;; Color the output noticeably
-   #{ \once \override #item #'color = #cyan #})
-
-
-annotation =
 #(define-music-function (parser location name properties type item)
    ((symbol?) ly:context-mod? markup? symbol-list-or-music?)
    ;; annotates a musical object for use with lilypond-doc
@@ -314,12 +303,12 @@ criticalRemark =
 #(define-music-function (parser location name properties item)
    ((symbol?) ly:context-mod? symbol-list-or-music?)
    (if (symbol? name)
-       #{ \annotation
+       #{ \annotate
           #name
           #properties
           "critical-remark"
           #item #}
-       #{ \annotation
+       #{ \annotate
           #properties
           "critical-remark"
           #item #}))
@@ -329,12 +318,12 @@ lilypondIssue =
 #(define-music-function (parser location name properties item)
    ((symbol?) ly:context-mod? symbol-list-or-music?)
    (if (symbol? name)
-       #{ \annotation
+       #{ \annotate
           #name
           #properties
           "lilypond-issue"
           #item #}
-       #{ \annotation
+       #{ \annotate
           #properties
           "lilypond-issue"
           #item #}))
@@ -344,12 +333,12 @@ musicalIssue =
 #(define-music-function (parser location name properties item)
    ((symbol?) ly:context-mod? symbol-list-or-music?)
    (if (symbol? name)
-       #{ \annotation
+       #{ \annotate
           #name
           #properties
           "musical-issue"
           #item #}
-       #{ \annotation
+       #{ \annotate
           #properties
           "musical-issue"
           #item #}))
@@ -359,12 +348,12 @@ question =
 #(define-music-function (parser location name properties item)
    ((symbol?) ly:context-mod? symbol-list-or-music?)
    (if (symbol? name)
-       #{ \annotation
+       #{ \annotate
           #name
           #properties
           "question"
           #item #}
-       #{ \annotation
+       #{ \annotate
           #properties
           "question"
           #item #}))
@@ -374,12 +363,12 @@ todo =
 #(define-music-function (parser location name properties item)
    ((symbol?) ly:context-mod? symbol-list-or-music?)
    (if (symbol? name)
-       #{ \annotation
+       #{ \annotate
           #name
           #properties
           "todo"
           #item #}
-       #{ \annotation
+       #{ \annotate
           #properties
           "todo"
           #item #}))
