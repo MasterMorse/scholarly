@@ -32,6 +32,7 @@ printAnnotations =
 % initialize empty configuration variable
 #(cond ((not (defined? 'annotation-export-targets))
         (define annotation-export-targets '())))
+#(define export-annotations #f)
 
 % Convenience function to select output targets
 % Provide a list with strings. These have to match
@@ -39,7 +40,8 @@ printAnnotations =
 setAnnotationExportTargets =
 #(define-void-function (parser location targets)
    (stringlist?)
-   (set! annotation-export-targets targets))
+   (set! annotation-export-targets targets)
+   (set! export-annotations #t))
 
 %%%%%%%%%%%%%%%%%
 % Limiting output
