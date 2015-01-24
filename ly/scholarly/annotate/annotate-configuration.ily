@@ -61,9 +61,10 @@ ignoreAnnotationTypes =
 %%%% Coloring annotations
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Switch coloring of annotations on/off
+% Switch coloring of annotations on/off.
+% By default coloring is active
 #(cond ((not (defined? 'color-annotations))
-        (define color-annotations #f)))
+        (define color-annotations #t)))
 
 % Convenience function for switching coloring annotations
 % Specify ##t or ##f to switch on/off
