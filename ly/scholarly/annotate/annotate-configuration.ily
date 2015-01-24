@@ -15,8 +15,9 @@
 % Console output
 
 % initialize empty configuration variable
+% By default annotations are printed to the console
 #(cond ((not (defined? 'print-annotations))
-        (define print-annotations #f)))
+        (define print-annotations #t)))
 
 % Convenience function for switching annotation printing
 % Specify ##t or ##f to switch on/off
