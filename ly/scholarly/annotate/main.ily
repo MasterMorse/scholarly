@@ -151,7 +151,8 @@ annotationCollector =
              ;; If there's a better label for the context overwrite the context-id property
              ;; which has originally been set to the directory name the input file is in
              ;; (because in some set-ups this is an indicator of the voice/part context).
-             (if ctx-id (set! annotation (assoc-set! annotation "context-id" ctx-id)))
+             (if (not (string=? ctx-id ""))
+                 (set! annotation (assoc-set! annotation "context-id" ctx-id)))
 
              ;; add current annotation to the list of annotations
              (set! annotations (append annotations (list annotation)))))
