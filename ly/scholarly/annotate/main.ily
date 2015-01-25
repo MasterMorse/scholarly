@@ -251,12 +251,16 @@ annotate =
            (segment-name (cdr ctx)))
 
      ;; Add or replace props entries taken from the properties argument
+     ;; set annotation type to that given by the calling function.
+     ;; If we're called by \annotation do not set the property
+     ;; to ensure proper predicate checking (the annotation must have a 'type')
+     (if (not (string=? type ""))
+         (set! props (assoc-set! props "type" type)))
+
      (for-each (lambda (mod) (set! props
                                    (assoc-set! props
                                      (symbol->string (cadr mod)) (caddr mod))))
        (ly:get-context-mods properties))
-     ;; set annotation type to that given by the calling function
-     (set! props (assoc-set! props "type" type))
 
      ;; pass along the input location to the engraver
      (set! props (assoc-set! props "location" location))
@@ -306,6 +310,21 @@ annotate =
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Wrapper functions for different types of annotations
+
+annotation =
+% Final annotation about an editorial decision
+#(define-music-function (parser location name properties item)
+   ((symbol?) ly:context-mod? symbol-list-or-music?)
+   (if (symbol? name)
+       #{ \annotate
+          #name
+          #properties
+          ""
+          #item #}
+       #{ \annotate
+          #properties
+          ""
+          #item #}))
 
 criticalRemark =
 % Final annotation about an editorial decision
