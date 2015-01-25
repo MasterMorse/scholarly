@@ -65,7 +65,6 @@
    (and
     (list? obj)
     (every pair? obj)
-    (assoc-ref obj "author")
     (assoc-ref obj "message")
     (assoc-ref obj "type")
     (assoc-ref obj "location")))
@@ -190,7 +189,7 @@ annotationProcessor =
         (let
          ((er (assoc-ref export-routines t)))
          ;; skip invalid entries
-         (if er 
+         (if er
              (er)
              (ly:warning (format "Invalid annotation export target: ~a" t)))))
       annotation-export-targets))))
