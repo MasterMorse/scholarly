@@ -71,7 +71,7 @@ ignoreAnnotationTypes =
 colorAnnotations =
 #(define-scheme-function (parser location active)
    (boolean?)
-   (set! export-annotations active))
+   (set! color-annotations active))
 
 % default colors for annotations types
 #(define annotation-color-defaults
