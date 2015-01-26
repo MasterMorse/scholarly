@@ -47,5 +47,5 @@
     annotations)
 
    ;; write to output file
-   (write-output-file))
+   (write-output-file "log"))
 

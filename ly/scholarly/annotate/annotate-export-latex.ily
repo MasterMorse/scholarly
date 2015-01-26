@@ -147,7 +147,7 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
           (assoc-ref ann "grob-type")))
        ;; the actual message
        ;
-       ; TODO
+       ; TODOsanitized-
        ; Format the message properly
        ;
        (append-to-output-stringlist
@@ -160,5 +160,5 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
     annotations)
 
    ;; write to output file
-   (write-output-file))
+   (write-output-file "inp"))
 
