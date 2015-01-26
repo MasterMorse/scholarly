@@ -54,6 +54,7 @@ less important but trivial to add may be listed first).
   Use it to (optionally) visualize the rhythmic location
 - allow LaTeX code in annotation message (some kind of verbatim mode)
 - provide some sort of Markdown-like message formatting
+- make an option to output standalone LaTeX documents
 
 #### New output formats
 
