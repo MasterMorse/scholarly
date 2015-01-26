@@ -31,5 +31,7 @@
           (if (not (member (car prop) flt))
               (format-property-message prop)
               ""))
-     ann))
+     (sort ann 
+       (lambda (a b)
+         (string<? (car a) (car b))))))
 
