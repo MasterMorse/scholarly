@@ -38,18 +38,15 @@
 #(define (write-lines msgs cmd)
    (for-each
     (lambda (m)
-      ;
-      ; TODO
-      ; Consider why this conditional is necessary.
-      ; I actually doubt it (still) is.
-      ;
+      ;; filtered properties are represented by empty strings
+      ;; so we filter them out here.
       (if (not (string= m ""))
           (cmd m)))
     msgs))
 
 % Take the stringlist 'annotate-export-stringlist
 % and write it out to a file
-#(define (write-output-file)
+#(define (write-output-file ext)
    ;
    ; TODO
    ; remove "messages" here and directly use the global object
@@ -57,8 +54,8 @@
    ; TODO
    ; Make the file name configurable and let it respect the target format
    ;
-   (let* ((logfile (format "~A.annotations.log" annotation-out-basename)))
-     (ly:message "writing '~A' ..." logfile)
+   (let* ((logfile (format "~a.annotations.~a" annotation-out-basename ext)))
+     (ly:message "writing '~a' ..." logfile)
      (with-output-to-file logfile
        (lambda ()
          (write-lines annotate-export-stringlist display-line)))))

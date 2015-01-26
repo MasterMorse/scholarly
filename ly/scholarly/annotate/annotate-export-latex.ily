@@ -1,5 +1,7 @@
 % File with definitions for exporting annotations to latex
 
+#(use-modules (ice-9 regex))
+
 % A list with characters that should be escaped when
 % exporting to LaTeX. This works together with the below regexp
 % and is used in the normalization function.
@@ -42,6 +44,14 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
 #(define (format-latex-remaining-properties type props loc-props)
    (let ((cmd
           (assoc-ref annotation-type-latex-commands type))
+         (props
+          (map
+           (lambda (p)
+             (cons (car p)
+               (if (ly:music? (cdr p))
+                   "<LilyPond Music>"
+                   (cdr p))))
+           props))
          (result '()))
      ;; Start with LaTeX command
      (set! result
@@ -137,7 +147,7 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
           (assoc-ref ann "grob-type")))
        ;; the actual message
        ;
-       ; TODO
+       ; TODOsanitized-
        ; Format the message properly
        ;
        (append-to-output-stringlist
@@ -150,5 +160,5 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
     annotations)
 
    ;; write to output file
-   (write-output-file))
+   (write-output-file "inp"))
 

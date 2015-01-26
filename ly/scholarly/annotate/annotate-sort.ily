@@ -27,15 +27,6 @@
     (assoc-ref ann-a "type")
     (assoc-ref ann-b "type")))
 
-% Criteria by which annotations are to be sorted.
-% This is a list of keywords which can be set directly
-% By default sort annotations in chronological order
-#(cond ((not (defined? 'annotation-sort-criteria))
-        (define annotation-sort-criteria
-          '("rhythmic-location"))))
-% Example: order by type and then by author
-%#(set! annotation-sort-criteria '("type" "author"))
-
 % Lookup list from which the predicate procedures are retrieved
 #(define annotation-comparison-predicates
    `(("rhythmic-location" . ,annotation-earlier?)

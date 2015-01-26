@@ -15,8 +15,9 @@
 % Console output
 
 % initialize empty configuration variable
+% By default annotations are printed to the console
 #(cond ((not (defined? 'print-annotations))
-        (define print-annotations #f)))
+        (define print-annotations #t)))
 
 % Convenience function for switching annotation printing
 % Specify ##t or ##f to switch on/off
@@ -31,6 +32,7 @@ printAnnotations =
 % initialize empty configuration variable
 #(cond ((not (defined? 'annotation-export-targets))
         (define annotation-export-targets '())))
+#(define export-annotations #f)
 
 % Convenience function to select output targets
 % Provide a list with strings. These have to match
@@ -38,7 +40,8 @@ printAnnotations =
 setAnnotationExportTargets =
 #(define-void-function (parser location targets)
    (stringlist?)
-   (set! annotation-export-targets targets))
+   (set! annotation-export-targets targets)
+   (set! export-annotations #t))
 
 %%%%%%%%%%%%%%%%%
 % Limiting output
@@ -53,21 +56,38 @@ ignoreAnnotationTypes =
 #(define-void-function (parser location types)(stringlist?)
    (set! ignored-annotation-types types))
 
+%%%%%%%%%%%%%%%%%%%%%%%
+% Filtering annotations
+
+% Criteria by which annotations are to be sorted.
+% This is a list of keywords which can be set directly
+% By default sort annotations in chronological order
+#(cond ((not (defined? 'annotation-sort-criteria))
+        (define annotation-sort-criteria
+          '("rhythmic-location"))))
+% Example: order by type and then by author
+%#(set! annotation-sort-criteria '("type" "author"))
+
+sortAnnotationsBy =
+#(define-void-function (parser location criteria)
+   (stringlist?)
+   (set! annotation-sort-criteria criteria))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Coloring annotations
 %%%%%%%%%%%%%%%%%%%%%%%%%
 
-% Switch coloring of annotations on/off
+% Switch coloring of annotations on/off.
+% By default coloring is active
 #(cond ((not (defined? 'color-annotations))
-        (define color-annotations #f)))
+        (define color-annotations #t)))
 
 % Convenience function for switching coloring annotations
 % Specify ##t or ##f to switch on/off
 colorAnnotations =
 #(define-scheme-function (parser location active)
    (boolean?)
-   (set! export-annotations active))
+   (set! color-annotations active))
 
 % default colors for annotations types
 #(define annotation-color-defaults

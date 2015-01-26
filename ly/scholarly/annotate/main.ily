@@ -65,7 +65,6 @@
    (and
     (list? obj)
     (every pair? obj)
-    (assoc-ref obj "author")
     (assoc-ref obj "message")
     (assoc-ref obj "type")
     (assoc-ref obj "location")))
@@ -141,7 +140,11 @@ annotationCollector =
          (lambda (g)
            (let* ((annotation (last g))
                   (ctx-id
-                   (annotation-context-label context)))
+                   ;; Determine if there's
+                   ;; a) an explicit context name defined or
+                   ;; b) an implicit context name through the named Staff context
+                   (or (assoc-ref annotation "context")
+                       (annotation-context-label context))))
              ;; Here we add more properties that can only now be determined.
              ;; Even more detailed informations (properties) will later be
              ;; determined from these fields.
@@ -152,7 +155,8 @@ annotationCollector =
              ;; If there's a better label for the context overwrite the context-id property
              ;; which has originally been set to the directory name the input file is in
              ;; (because in some set-ups this is an indicator of the voice/part context).
-             (if ctx-id (set! annotation (assoc-set! annotation "context-id" ctx-id)))
+             (if (or ctx-id (string=? ctx-id ""))
+                 (set! annotation (assoc-set! annotation "context-id" ctx-id)))
 
              ;; add current annotation to the list of annotations
              (set! annotations (append annotations (list annotation)))))
@@ -190,7 +194,7 @@ annotationProcessor =
         (let
          ((er (assoc-ref export-routines t)))
          ;; skip invalid entries
-         (if er 
+         (if er
              (er)
              (ly:warning (format "Invalid annotation export target: ~a" t)))))
       annotation-export-targets))))
@@ -252,12 +256,16 @@ annotate =
            (segment-name (cdr ctx)))
 
      ;; Add or replace props entries taken from the properties argument
+     ;; set annotation type to that given by the calling function.
+     ;; If we're called by \annotation do not set the property
+     ;; to ensure proper predicate checking (the annotation must have a 'type')
+     (if (not (string=? type ""))
+         (set! props (assoc-set! props "type" type)))
+
      (for-each (lambda (mod) (set! props
                                    (assoc-set! props
                                      (symbol->string (cadr mod)) (caddr mod))))
        (ly:get-context-mods properties))
-     ;; set annotation type to that given by the calling function
-     (set! props (assoc-set! props "type" type))
 
      ;; pass along the input location to the engraver
      (set! props (assoc-set! props "location" location))
@@ -307,6 +315,21 @@ annotate =
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Wrapper functions for different types of annotations
+
+annotation =
+% Final annotation about an editorial decision
+#(define-music-function (parser location name properties item)
+   ((symbol?) ly:context-mod? symbol-list-or-music?)
+   (if (symbol? name)
+       #{ \annotate
+          #name
+          #properties
+          ""
+          #item #}
+       #{ \annotate
+          #properties
+          ""
+          #item #}))
 
 criticalRemark =
 % Final annotation about an editorial decision
