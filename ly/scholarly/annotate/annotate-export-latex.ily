@@ -15,17 +15,23 @@
      ("#" . "\\#")
      ("\n\n" . "\\\\\n")))
 
-latex-escape-regexpstring = "&|\\\\|\{|\}|\[|\]|#"
+latex-escape-regexpstring = "&|\\\\|\{|\}|\[|\]|#|\@.*\@"
 latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
 
 % LilyPond strings can contain stuff that is not accepted in LaTeX files,
-% so we have to preprocess them)
+% so we have to preprocess them).
+% Verbatim LaTeX code can be inserted by enclosing it with at-symbols
 #(define (escape-string-latex str)
    ;; Escape invalid LaTeX characters
    (set! str
          (regexp-substitute/global #f latex-escape-regexp str
            'pre (lambda (m)
-                  (assoc-ref latex-escape-pairs (match:substring m)))
+                  (let ((ms (match:substring m)))
+                    (if (string= "@" (substring ms 0 1))
+                        ;; return verbatim LaTeX code (without the @-s)
+                        (substring ms 1 (- (string-length ms) 1))
+                        ;; return escaped character(s)
+                        (assoc-ref latex-escape-pairs ms))))
            'post))
    str)
 
