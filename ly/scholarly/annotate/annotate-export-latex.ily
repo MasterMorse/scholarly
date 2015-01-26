@@ -151,11 +151,10 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
        (append-to-output-stringlist
         (format "    {~a}"
           (assoc-ref ann "grob-type")))
-       ;; the actual message
-       ;
-       ; TODOsanitized-
-       ; Format the message properly
-       ;
+
+       ;; The actual message
+       ;; Invalid characters are escaped except for intended
+       ;; verbatim LaTeX code
        (append-to-output-stringlist
         (format "    {~a}"
           (indent-multiline-latex-string
