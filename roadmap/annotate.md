@@ -23,13 +23,6 @@ less important but trivial to add may be listed first).
   printed. This will make the necessity obsolete to filter out so many properties in the
   export routines.  
   Maybe it is a good idea to have *only* such sub-alists as the top-level items.
-- Properly handle the `context-id` retrieval.  
-  This is not done in a satisfying way. Currently we retrieve the name of the enclosing
-  Staff context, which has a number of problems:
-  - What if the Voice is in a Dynamics etc. context?
-  - In partcombined staves we get only the common name
-  - But when asking for the actual Voice we'd need a named Voice, which is not always possible
-    (and I don't know how partcombine would behave here).
 - Properly thing about supporting custom annotation types
 - Add support for callback functions dealing with custom property types
   
@@ -53,7 +46,6 @@ less important but trivial to add may be listed first).
 
 - incorporate `lilyglyphs`  
   Use it to (optionally) visualize the rhythmic location
-- allow LaTeX code in annotation message (some kind of verbatim mode)
 - provide some sort of Markdown-like message formatting
 - make an option to output standalone LaTeX documents
 
