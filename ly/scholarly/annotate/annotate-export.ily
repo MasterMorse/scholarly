@@ -58,7 +58,8 @@
      (ly:message "writing '~a' ..." logfile)
      (with-output-to-file logfile
        (lambda ()
-         (write-lines annotate-export-stringlist display-line)))))
+         (write-lines annotate-export-stringlist display-line)))
+     (set! annotate-export-stringlist '())))
 
 % Format the rhythmic location of an annotation to a string
 % used when printing to the console or exporting to plain text
