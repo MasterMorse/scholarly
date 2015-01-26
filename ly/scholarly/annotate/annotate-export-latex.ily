@@ -44,6 +44,14 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
 #(define (format-latex-remaining-properties type props loc-props)
    (let ((cmd
           (assoc-ref annotation-type-latex-commands type))
+         (props
+          (map
+           (lambda (p)
+             (cons (car p)
+               (if (ly:music? (cdr p))
+                   "<LilyPond Music>"
+                   (cdr p))))
+           props))
          (result '()))
      ;; Start with LaTeX command
      (set! result
