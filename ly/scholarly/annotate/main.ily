@@ -40,7 +40,7 @@
 % or #f if none is defined
 #(define (annotation-context-label context)
    (let*
-    ((ctx (ly:context-id (ly:context-parent context))))
+    ((ctx (ly:context-id context)))
     (or
      (assoc-ref annotation-context-labels ctx)
      ctx)))
@@ -200,11 +200,43 @@ annotationProcessor =
       annotation-export-targets))))
 
 \layout {
-  \context {
-    \Voice
-    % In each Voice context an annotation collector
+    % In each Staff-like context an annotation collector
     % parses annotations and appends them to the global
     % annotations object.
+  \context {
+    \Staff
+    \consists \annotationCollector
+  }
+  \context {
+    \DrumStaff
+    \consists \annotationCollector
+  }
+  \context {
+    \RhythmicStaff
+    \consists \annotationCollector
+  }
+  \context {
+    \TabStaff
+    \consists \annotationCollector
+  }
+  \context {
+    \GregorianTranscriptionStaff
+    \consists \annotationCollector
+  }
+  \context {
+    \MensuralStaff
+    \consists \annotationCollector
+  }
+  \context {
+    \VaticanaStaff
+    \consists \annotationCollector
+  }
+  \context {
+    \Dynamics
+    \consists \annotationCollector
+  }
+  \context {
+    \Lyrics
     \consists \annotationCollector
   }
   \context {
