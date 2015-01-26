@@ -3,6 +3,22 @@
 %%%% General routines for formatting output
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% Define string representations for selected ly:music? data types.
+% These are used for displaying custom properties.
+#(define (format-ly-music music)
+   (if (ly:music? music)
+       (cond
+        ((eq? 'TimeSignatureMusic (ly:music-property music 'name))
+              (format "\\time ~a/~a"
+                (ly:music-property music 'numerator)
+                (ly:music-property music 'denominator)))
+        ((eq? 'KeyChangeEvent (ly:music-property music 'name))
+         (format "Key: ~a" (ly:music-property music 'tonic)))
+         (else "<LilyPond Music>"))
+         ;(else (format "~a" music)))
+       "No music found"))
+
+
 % Compose a message from the properties of an annotation
 % The 'cmd' argument should be
 % - ly:message or
@@ -23,7 +39,7 @@
       ; and format messages for supported types like key signatures
       ;
       (if (ly:music? prop-value)
-          "<LilyPond music>"
+          (format-ly-music prop-value)
           prop-value))))
 
 #(define (format-property-messages ann flt)
@@ -31,7 +47,7 @@
           (if (not (member (car prop) flt))
               (format-property-message prop)
               ""))
-     (sort ann 
+     (sort ann
        (lambda (a b)
          (string<? (car a) (car b))))))
 
