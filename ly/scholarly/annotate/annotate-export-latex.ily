@@ -1,5 +1,7 @@
 % File with definitions for exporting annotations to latex
 
+#(use-modules (ice-9 regex))
+
 % A list with characters that should be escaped when
 % exporting to LaTeX. This works together with the below regexp
 % and is used in the normalization function.
