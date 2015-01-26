@@ -31,6 +31,7 @@ less important but trivial to add may be listed first).
   - But when asking for the actual Voice we'd need a named Voice, which is not always possible
     (and I don't know how partcombine would behave here).
 - Properly thing about supporting custom annotation types
+- Add support for callback functions dealing with custom property types
   
 ### Output processing
 
