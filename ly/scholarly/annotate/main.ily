@@ -311,10 +311,6 @@ annotate =
            (assoc-set! props
              "segment-name"
              segment-name))
-     (set! props
-           (assoc-set! props
-             "basename"
-             (ly:parser-output-name parser)))
 
      (if (input-annotation? props)
          ;; Apply the annotation object as an override, depending on the input syntax
