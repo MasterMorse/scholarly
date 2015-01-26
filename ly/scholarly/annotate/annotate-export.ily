@@ -38,11 +38,8 @@
 #(define (write-lines msgs cmd)
    (for-each
     (lambda (m)
-      ;
-      ; TODO
-      ; Consider why this conditional is necessary.
-      ; I actually doubt it (still) is.
-      ;
+      ;; filtered properties are represented by empty strings
+      ;; so we filter them out here.
       (if (not (string= m ""))
           (cmd m)))
     msgs))
