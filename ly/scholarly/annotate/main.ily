@@ -140,7 +140,11 @@ annotationCollector =
          (lambda (g)
            (let* ((annotation (last g))
                   (ctx-id
-                   (annotation-context-label context)))
+                   ;; Determine if there's
+                   ;; a) an explicit context name defined or
+                   ;; b) an implicit context name through the named Staff context
+                   (or (assoc-ref annotation "context")
+                       (annotation-context-label context))))
              ;; Here we add more properties that can only now be determined.
              ;; Even more detailed informations (properties) will later be
              ;; determined from these fields.
@@ -151,7 +155,7 @@ annotationCollector =
              ;; If there's a better label for the context overwrite the context-id property
              ;; which has originally been set to the directory name the input file is in
              ;; (because in some set-ups this is an indicator of the voice/part context).
-             (if (not (string=? ctx-id ""))
+             (if (or ctx-id (string=? ctx-id ""))
                  (set! annotation (assoc-set! annotation "context-id" ctx-id)))
 
              ;; add current annotation to the list of annotations
