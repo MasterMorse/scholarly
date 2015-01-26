@@ -8,11 +8,7 @@
   - colors affected objects depending on the type of annotation
   - prints a message on the console
   TODO:
-  - sort annotations by rhythmic-location
-  - write annotations to file(s)
   - generate clickable links when writing to file
-  - write \setAnnotationColors
-    with optional arguments
   - enable the music function to apply editorial functions
     to the affected grob (e.g. dashing slurs, parenthesizing etc.).
     This has to be controlled by extra annotation properties
@@ -200,9 +196,9 @@ annotationProcessor =
       annotation-export-targets))))
 
 \layout {
-    % In each Staff-like context an annotation collector
-    % parses annotations and appends them to the global
-    % annotations object.
+  % In each Staff-like context an annotation collector
+  % parses annotations and appends them to the global
+  % annotations object.
   \context {
     \Staff
     \consists \annotationCollector
@@ -256,90 +252,80 @@ annotate =
    ((symbol?) ly:context-mod? markup? symbol-list-or-music?)
    ;; annotates a musical object for use with lilypond-doc
 
-   (let* (
-           ;; create empty alist to hold the annotation
-           (props '( ))
-           ;
-           ; TODO:
-           ; Initialize props with mandatory properties.
-           ; Do as with the configuration alists, by iterating over a
-           ; default values alist.
-           ; This is to differentiate between fields that should be
-           ; set by default or that should trigger an error
-           ; (e.g. 'author' should be required, 'message' could default
-           ; to an empty string)
-           ;
+   (let*
+    ( ;; create empty alist to hold the annotation
+      (props '())
+      ;; retrieve a pair with containing directory and input file
+      (input-file (string-split (car (ly:input-file-line-char-column location)) #\/ ))
+      (ctx (list-tail input-file (- (length input-file) 2)))
+      ;; extract directory name (-> part/voice name)
+      (input-directory (car ctx))
+      ;; extract segment name
+      ; currently this is still *with* the extension
+      (segment-name (cdr ctx)))
 
-           ; The following code is project specific.
-           ; as we have a convention in "Das trunkne Lied" about storage places
-           ; we can use the input file and its directory to determine information
-           ; on the musical structure.
-           ; When making this module publicly available
-           ; we'll have to consider dropping this - or make it more versatile.
+    ;; The "type" is passed as an argument from the wrapper functions
+    ;; An empty string refers to the generic \annotation function. In this case
+    ;; we don't set a type at all to ensure proper predicate checking
+    ;; (the annotation must then have an explicit 'type' property)
+    (if (not (string=? type ""))
+        (set! props (assoc-set! props "type" type)))
 
-           ;; retrieve a pair with containing directory and input file
-           (input-file (string-split (car (ly:input-file-line-char-column location)) #\/ ))
-           (ctx (list-tail input-file (- (length input-file) 2)))
+    ;; Add or replace props entries taken from the properties argument
+    (for-each
+     (lambda (mod)
+       (set! props
+             (assoc-set! props
+               (symbol->string (cadr mod)) (caddr mod))))
+     (ly:get-context-mods properties))
 
-           ;; extract directory name (-> part/voice name)
-           (input-directory (car ctx))
-           ;; extract segment name
-           ; currently this is still *with* the extension
-           (segment-name (cdr ctx)))
+    ;; pass along the input location to the engraver
+    (set! props (assoc-set! props "location" location))
 
-     ;; Add or replace props entries taken from the properties argument
-     ;; set annotation type to that given by the calling function.
-     ;; If we're called by \annotation do not set the property
-     ;; to ensure proper predicate checking (the annotation must have a 'type')
-     (if (not (string=? type ""))
-         (set! props (assoc-set! props "type" type)))
+    ; also pass along our project-specific annotation properties
+    ;; the 'context-id' property is the name of the musical context
+    ;; the annotation refers to. As our fallthrough solution we
+    ;; set this to the name of the enclosing directory
+    (set! props
+          (assoc-set! props
+            "context-id"
+            input-directory))
+    ;
+    ; TODO:
+    ; this is a remnant from the Oskar Fried project.
+    ; I'm not sure yet if that should be kept or not.
+    ;
+    (set! props
+          (assoc-set! props
+            "segment-name"
+            segment-name))
 
-     (for-each (lambda (mod) (set! props
-                                   (assoc-set! props
-                                     (symbol->string (cadr mod)) (caddr mod))))
-       (ly:get-context-mods properties))
-
-     ;; pass along the input location to the engraver
-     (set! props (assoc-set! props "location" location))
-
-     ; also pass along our project-specific annotation properties
-     (set! props
-           (assoc-set! props
-             "context-id"
-             input-directory))
-     (set! props
-           (assoc-set! props
-             "segment-name"
-             segment-name))
-
-     (if (input-annotation? props)
-         ;; Apply the annotation object as an override, depending on the input syntax
-         (cond
-          ((and (ly:music? item) (symbol? name))
-           ;; item is music and name directs to a specific grob
-           ;; annotate the named grob
-           #{
-             % this does not work yet.
-             % The addressing logic worked with tweaking the color property
-             % The tweak is applied to NoteHeads or Accidentals
-             % but not to attached items like Script, Hairpin, Tie etc.
-             \tweak #`(,name input-annotation) #props #item
-           #})
-          ((ly:music? item)
-           ;; item is music
-           ;; -> annotate the music item (usually the NoteHead)
-           #{
-             \tweak #'input-annotation #props #item
-           #})
-          (else
-           ;; item is a symbol list (i.e. grob name)
-           ;; -> annotate the next item of the given grob name
-           #{
-             \once \override #item #'input-annotation = #props
-           #}))
-         (begin
-          (ly:input-warning location "Improper annotation. Maybe there are mandatory properties missing?")
-          #{ #}))))
+    ;; Check if we do have a valid annotation,
+    ;; then process it.
+    (if (input-annotation? props)
+        ;; Apply the annotation object as an override, depending on the input syntax
+        (cond
+         ((and (ly:music? item) (symbol? name))
+          ;; item is music and name directs to a specific grob
+          ;; annotate the named grob
+          #{
+            \tweak #`(,name input-annotation) #props #item
+          #})
+         ((ly:music? item)
+          ;; item is music
+          ;; -> annotate the music item (usually the NoteHead)
+          #{
+            \tweak #'input-annotation #props #item
+          #})
+         (else
+          ;; item is a symbol list (i.e. grob name)
+          ;; -> annotate the next item of the given grob name
+          #{
+            \once \override #item #'input-annotation = #props
+          #}))
+        (begin
+         (ly:input-warning location "Improper annotation. Maybe there are mandatory properties missing?")
+         #{ #}))))
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Wrapper functions for different types of annotations
