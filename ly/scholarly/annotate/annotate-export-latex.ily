@@ -55,7 +55,7 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
            (lambda (p)
              (cons (car p)
                (if (ly:music? (cdr p))
-                   "<LilyPond Music>"
+                   (format-ly-music (cdr p))
                    (cdr p))))
            props))
          (result '()))
