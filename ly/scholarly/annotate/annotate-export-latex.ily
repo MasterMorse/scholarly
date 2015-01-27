@@ -109,7 +109,7 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
     ;
     (lambda (ann)
       (let*
-       ((loc-props (annotation-location-properties ann))
+       ((loc-props (assoc-ref ann "grob-location"))
         (rem-props (list-copy ann)))
 
        ;; Create a list rem-props with "remaining properties"
@@ -117,9 +117,8 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
        (for-each
         (lambda (p)
           (set! rem-props (assoc-remove! rem-props p)))
-        (list "type" "grob-type" "context-id"
-          "message" "segment-name" "location" "basename"
-          "measure-len" "beats-in-meter" "rhythmic-location"))
+        (list "type" "grob-type" "context-id" "input-file-name"
+          "message" "location" "grob" "grob-location"))
 
        ;; If there are remaining properties
        ;; output them to a key-value list as an optional argument

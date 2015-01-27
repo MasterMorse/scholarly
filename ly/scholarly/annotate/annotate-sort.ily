@@ -1,13 +1,19 @@
 %%%%%%%%%%
 % comparison operators for sorting annotations by different properties
 
+#(define (get-rhythmic-location ann)
+   "Retrieve 'rhythmic-location' from 'grob-location'"
+   (assoc-ref
+    (assoc-ref ann "grob-location")
+    "rhythmic-location"))
+
 % compare by rhythmic location
 #(define (annotation-earlier? ann-a ann-b)
    (let*
-    ((loc-a (assoc-ref ann-a "rhythmic-location"))
+    ((loc-a (get-rhythmic-location ann-a))
      (ma (car loc-a))
      (pa (cdr loc-a))
-     (loc-b (assoc-ref ann-b "rhythmic-location"))
+     (loc-b (get-rhythmic-location ann-b))
      (mb (car loc-b))
      (pb (cdr loc-b)))
     (cond

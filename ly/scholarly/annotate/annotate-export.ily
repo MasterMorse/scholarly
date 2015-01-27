@@ -72,9 +72,11 @@ setAnnotationOutputBasename =
 % Format the rhythmic location of an annotation to a string
 % used when printing to the console or exporting to plain text
 #(define (format-location ann)
-   (let ((props (annotation-location-properties ann))
-         (loc (assoc-ref ann "rhythmic-location")))
-     (if (= 0 (car loc))
+   "Return a string representation of the annotations rhythmic location"
+   (let* ((props (assoc-ref ann "grob-location"))
+          (measure-no (assoc-ref props "measure-no"))
+          )
+     (if (= 0 measure-no)
          ;; workaround for a problem that sometimes the paperColumn gets
          ;; lost along the way. In that case the location is manually
          ;; set to measure zero - which is impossible.
@@ -82,7 +84,11 @@ setAnnotationOutputBasename =
            (assoc-ref ann "location"))
          (format "Measure ~a, beat ~a"
            (assoc-ref props "measure-no")
-           (assoc-ref props "beat-string")))))
+           (let*
+            ((beat-fraction (assoc-ref props "beat-fraction"))
+             (our-beat (assoc-ref props "our-beat"))
+             (beat-string (beat-string props)))
+            beat-string)))))
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -98,9 +104,7 @@ setAnnotationOutputBasename =
        (ly:message (format "    ~a" (format-location ann)))
        (write-lines
         (format-property-messages ann
-          (list "type" "context" "location"
-            "segment-name" "basename" "measure-len"
-            "beats-in-meter" "rhythmic-location"))
+          (list "type" "location" "input-file-name" "grob" "grob-location"))
         ly:message)
        (ly:message "")))
     annotations))

@@ -29,21 +29,19 @@
     ; This is the part that should be factored out
     ;
     (lambda (ann)
-      (let* ((loc-props (annotation-location-properties ann)))
-        ;; start entry with rhythmic-location
-        (append-to-output-stringlist
-         (format-location ann))
-        ;; add annotation type
-        (append-to-output-stringlist
-         (assoc-ref annotation-type-labels
-           (assoc-ref ann "type")))
-        ;; print properties list
-        (append-to-output-stringlist
-         (format-property-messages ann
-           (list "type" "context" "location""basename"
-             "measure-len" "beats-in-meter" "rhythmic-location")))
-        ;; add newline to annotation entry
-        (append-to-output-stringlist " ")))
+      ;; start entry with rhythmic-location
+      (append-to-output-stringlist
+       (format-location ann))
+      ;; add annotation type
+      (append-to-output-stringlist
+       (assoc-ref annotation-type-labels
+         (assoc-ref ann "type")))
+      ;; print properties list
+      (append-to-output-stringlist
+       (format-property-messages ann
+         (list "type" "input-file-name" "location" "grob" "grob-location")))
+      ;; add newline to annotation entry
+      (append-to-output-stringlist " "))
     annotations)
 
    ;; write to output file

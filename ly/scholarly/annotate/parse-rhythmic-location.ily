@@ -31,7 +31,7 @@
      (if (compound? sig)
          (begin
           (display "compound")
-         (/ num 3))
+          (/ num 3))
          num)))
 
 #(define (beat-length measure-length number-of-beats)
@@ -65,49 +65,50 @@
 % TODO
 % Rewrite this so it takes the grob as its argument
 %
-#(define (annotation-location-properties ann)
-   (let* ((props '())
-          (loc (assoc-ref ann "rhythmic-location"))
-          (measure-pos (cdr loc))
-          (beats-in-meter (assoc-ref ann "beats-in-meter"))
-          (measure-len (assoc-ref ann "measure-len"))
-          (beat-len (beat-length measure-len beats-in-meter))
-          (our-beat (moment-floor measure-pos beat-len))
-          (beat-part (ly:moment-sub
-                      measure-pos
-                      (ly:moment-mul
-                       (ly:make-moment (1- our-beat))
-                       beat-len)))
-          (beat-fraction (moment->fraction
-                          (ly:moment-div beat-part beat-len)))
-          (beat-fraction (/ (car beat-fraction) (cdr beat-fraction)))
-          (beat-string (number->string our-beat))
-          (beat-string
-           (if (= 0 beat-fraction)
-               beat-string
-               (string-append
-                beat-string
-                " "
-                (number->string beat-fraction)))))
-     (if (= 0 (car loc))
-         (ly:input-warning
-          (assoc-ref ann "location")
-          "Sorry, location could not be determined."))
-     ;
-     ; TODO
-     ; Do we need a property for the input-location and rhythmic location in here?
-     ;
-     (set! props (assoc-set! props "grob-type" (assoc-ref ann "grob-type")))
-     (set! props (assoc-set! props "measure-no" (car loc)))
-     (set! props (assoc-set! props "measure-pos" measure-pos))
-     (set! props (assoc-set! props "beats-in-meter" beats-in-meter))
-     (set! props (assoc-set! props "measure-len" measure-len))
-     (set! props (assoc-set! props "beat-len" beat-len))
-     (set! props (assoc-set! props "our-beat" our-beat))
-     (set! props (assoc-set! props "beat-part" beat-part))
-     (set! props (assoc-set! props "beat-fraction" beat-fraction))
-     (set! props (assoc-set! props "beat-string" beat-string))
-     ;; "return" props
-     props)
-   )
 
+% Define beat-string as a procedure so we can later make it configurable
+% or at least allow the user to redefine this single procedure
+#(define (beat-string props)
+   "Return a string representation of the measure position."
+   (let*
+    ((our-beat (assoc-ref props "our-beat"))
+     (beat-fraction (assoc-ref props "beat-fraction"))
+     (beat-str (number->string our-beat))
+     (beat-str
+      (if (= 0 beat-fraction)
+          beat-str
+          (string-append
+           beat-str
+           " "
+           (number->string beat-fraction)))))
+    beat-str))
+
+#(define (grob-location-properties grob props)
+   "Populate the alist 'props' with more details about the rhythmic location of 'grob'.
+    It is assumed that a property 'meter' has already been set with a time sig pair."
+   (let*
+    ((loc (location grob))
+     (measure-pos (cdr loc))
+     (meter (assoc-ref props "meter"))
+     (beats-in-meter (car meter))
+     (beat-len (ly:make-moment 1 (cdr meter)))
+     (our-beat (moment-floor measure-pos beat-len))
+     (beat-part (ly:moment-sub
+                 measure-pos
+                 (ly:moment-mul
+                  (ly:make-moment (1- our-beat))
+                  beat-len)))
+     (beat-fraction (moment->fraction
+                     (ly:moment-div beat-part beat-len)))
+     (beat-fraction (/ (car beat-fraction) (cdr beat-fraction))))
+
+    (set! props (assoc-set! props "rhythmic-location" loc))
+    (set! props (assoc-set! props "measure-no" (car loc)))
+    (set! props (assoc-set! props "measure-pos" (cdr loc)))
+    (set! props (assoc-set! props "our-beat" our-beat))
+    (set! props (assoc-set! props "beat-part" beat-part))
+    (set! props (assoc-set! props "beat-fraction" beat-fraction))
+    (set! props (assoc-set! props "beat-string" (beat-string props)))
+
+    ;; "return" modified props
+    props))

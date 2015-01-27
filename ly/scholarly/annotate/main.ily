@@ -100,33 +100,34 @@ annotationCollector =
                    (annotation-context-label context))))
           ;; A grob is to be accepted when 'annotation *does* have some content
           (if (and (not (null-list? annotation))
+                   ;; filter annotations the user has excluded
                    (not (member
                          (assoc-ref annotation "type")
                          ignored-annotation-types)))
               ;; add more properties that are only now available
-              (let ((meter (ly:context-property context 'timeSignatureFraction))
-                    (measure-length (ly:context-property context 'measureLength)))
-                (begin
-                 (if color-annotations
-                     (set! (ly:grob-property grob 'color)
-                           (assoc-ref annotation-colors
-                             (assoc-ref annotation "type"))))
-                 (if (or print-annotations export-annotations)
-                     ;; only add to the list of grobs in the engraver
-                     ;; when we actually process them afterwards
-                     (begin
-                      ;; If there's a better label for the context overwrite the context-id property
-                      ;; which has originally been set to the directory name the input file is in
-                      ;; (because in some set-ups this is an indicator of the voice/part context).
-                      (if (or ctx-id (string=? ctx-id ""))
-                          (set! annotation (assoc-set! annotation "context-id" ctx-id)))
-
-                      ;; Add properties to the annotation that have not been present in the music function
-                      (set! annotation (assoc-set! annotation "grob-type" (grob-name grob)))
-                      (set! annotation (assoc-set! annotation "beats-in-meter" (number-of-beats meter)))
-                      (set! annotation (assoc-set! annotation "measure-len" measure-length))
-                      (set! annotation (assoc-set! annotation "rhythmic-location" (location grob)))
-                      (set! grobs (cons (list grob annotation) grobs))))))))))
+              (begin
+               (if color-annotations
+                   (set! (ly:grob-property grob 'color)
+                         (assoc-ref annotation-colors
+                           (assoc-ref annotation "type"))))
+               (if (or print-annotations export-annotations)
+                   ;; only add to the list of grobs in the engraver
+                   ;; when we actually process them afterwards
+                   (begin
+                    ;; If there's a better label for the context overwrite the context-id property
+                    ;; which has originally been set to the directory name the input file is in
+                    ;; (because in some set-ups this is an indicator of the voice/part context).
+                    (if (or ctx-id (string=? ctx-id ""))
+                        (set! annotation (assoc-set! annotation "context-id" ctx-id)))
+                    ;; Get the name of the annotated grob type
+                    (set! annotation (assoc-set! annotation "grob-type" (grob-name grob)))
+                    ;; Initialize a 'grob-location' property as a sub-alist,
+                    ;; for now with a 'meter' property. This will be populated in 'finalize'.
+                    (set! annotation
+                          (assoc-set! annotation "grob-location"
+                            (assoc-set! '() "meter"
+                              (ly:context-property context 'timeSignatureFraction))))
+                    (set! grobs (cons (list grob annotation) grobs)))))))))
 
       ;; Iterate over collected grobs and produce a list of annotations
       ;; (when annotations are neither printed nor logged the list is empty).
@@ -135,17 +136,16 @@ annotationCollector =
         (for-each
          (lambda (g)
            (let* ((annotation (last g)))
-             ;
-             ; TODO
-             ; Make this more consistent:
-             ; - set a property 'grob'
-             ; - set a property 'grob-location', retrieved by the rewritten function
-             ;   annotation-location-properties
-             ; - determine which information has to be passed to that function
-             ; - move appropriate properties *into* that meta property
-             ;
-             ; Add location info, which seems only possible here
-             (set! annotation (assoc-set! annotation "rhythmic-location" (location (first g))))
+             ;; Add location info, which seems only possible here
+             (set! annotation (assoc-set! annotation "grob" (first g)))
+
+             ;; retrieve rhythmical properties of the grob and
+             ;; store them in 'grob-location' alist
+             (set! annotation
+                   (assoc-set! annotation "grob-location"
+                     (grob-location-properties
+                      (first g)
+                      (assoc-ref annotation "grob-location"))))
 
              ;; add current annotation to the list of annotations
              (set! annotations (append annotations (list annotation)))))
@@ -200,7 +200,7 @@ annotate =
       (input-directory (car ctx))
       ;; extract segment name
       ; currently this is still *with* the extension
-      (segment-name (cdr ctx)))
+      (input-file-name (cdr ctx)))
 
     ;; The "type" is passed as an argument from the wrapper functions
     ;; An empty string refers to the generic \annotation function. In this case
@@ -220,23 +220,15 @@ annotate =
     ;; pass along the input location to the engraver
     (set! props (assoc-set! props "location" location))
 
-    ; also pass along our project-specific annotation properties
-    ;; the 'context-id' property is the name of the musical context
+    ;; The 'context-id' property is the name of the musical context
     ;; the annotation refers to. As our fallthrough solution we
-    ;; set this to the name of the enclosing directory
-    (set! props
-          (assoc-set! props
-            "context-id"
-            input-directory))
-    ;
-    ; TODO:
-    ; this is a remnant from the Oskar Fried project.
-    ; I'm not sure yet if that should be kept or not.
-    ;
-    (set! props
-          (assoc-set! props
-            "segment-name"
-            segment-name))
+    ;; initially set this to the name of the enclosing directory
+    (set! props (assoc-set! props "context-id" input-directory))
+
+    ; The input file name is not used so far (as it was a remnant of
+    ; the Oskar Fried project). As this may become useful for somebody
+    ; one day we'll keep it here.
+    (set! props (assoc-set! props "input-file-name" input-file-name))
 
     ;; Check if we do have a valid annotation,
     ;; then process it.
