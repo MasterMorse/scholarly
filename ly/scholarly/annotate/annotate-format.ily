@@ -15,7 +15,6 @@
         ((eq? 'KeyChangeEvent (ly:music-property music 'name))
          (format "Key: ~a" (ly:music-property music 'tonic)))
          (else "<LilyPond Music>"))
-         ;(else (format "~a" music)))
        "No music found"))
 
 
