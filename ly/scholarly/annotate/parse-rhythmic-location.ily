@@ -2,20 +2,9 @@
 % Helper functions for the annotation engraver
 % (provided by David Nalesnik)
 
-% Return the musical/rhythmical position of a given grob
-#(define (location grob)
-   (if (ly:grob? grob)
-
-   (let ((col (get-paper-column grob)))
-     (if col
-         (ly:grob-property col 'rhythmic-location)
-         ;; get-paper-column returns #f if no column found
-         ;; so we return an impossible value 'before the first beat'
-         (cons 0 (ly:make-moment 0/4))))
-   (ly:error "Requested rhythmic-location of a grob, but ã is not a grob," grob)))
-
 
 #(define (ly:moment<=? mom1 mom2)
+   "Compare two moments to determine precedence"
    (or (ly:moment<? mom1 mom2)
        (equal? mom1 mom2)))
 
@@ -36,18 +25,22 @@
       (else #f))))
 
 #(define (number-of-beats sig)
+   "Return the number of beats in a given time signature"
    (let ((num (car sig))
          (den (cdr sig)))
      (if (compound? sig)
-         (/ num 3)
+         (begin
+          (display "compound")
+         (/ num 3))
          num)))
 
-% Return the length of one single "beat"
 #(define (beat-length measure-length number-of-beats)
+   "Return the length of one single 'beat' as a moment"
    (ly:moment-div measure-length (ly:make-moment number-of-beats)))
 
-% Determine where a grob is in the horizontal course of the piece
 #(define (get-paper-column grob)
+   "Return the paper column of a given grob.
+    This property knows about the rhyhmic position in a score"
    (cond
     ((not (ly:grob? grob)) #f)
     ((grob::has-interface grob 'paper-column-interface) grob)
@@ -55,7 +48,23 @@
            ;; Can't use 'X' for axis because 'X' is also a music variable
            (ly:grob-parent grob 0)))))
 
+#(define (location grob)
+   "Return the musical/rhythmical position of a given grob"
+   (if (ly:grob? grob)
+       (let ((col (get-paper-column grob)))
+         (if col
+             (ly:grob-property col 'rhythmic-location)
+             ;; get-paper-column returns #f if no column found
+             ;; so we return an impossible value 'before the first beat'
+             (cons 0 (ly:make-moment 0/4))))
+       (ly:error "Requested rhythmic-location of a grob, but ~a is not a grob," grob)))
+
+
 % Calculate the rhythmic properties of an annotation
+%
+% TODO
+% Rewrite this so it takes the grob as its argument
+%
 #(define (annotation-location-properties ann)
    (let* ((props '())
           (loc (assoc-ref ann "rhythmic-location"))
