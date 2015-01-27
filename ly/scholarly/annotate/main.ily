@@ -91,13 +91,7 @@ annotationCollector =
       ;; and append annotation objects to the global annotations list
       (acknowledgers
        ((grob-interface engraver grob source-engraver)
-        (let ((annotation (ly:grob-property grob 'input-annotation))
-              (ctx-id
-               ;; Determine if there's
-               ;; a) an explicit context name defined or
-               ;; b) an implicit context name through the named Staff context
-               (or (assoc-ref annotation "context")
-                   (annotation-context-label context))))
+        (let ((annotation (ly:grob-property grob 'input-annotation)))
           ;; A grob is to be accepted when 'annotation *does* have some content
           (if (and (not (null-list? annotation))
                    ;; filter annotations the user has excluded
@@ -113,21 +107,26 @@ annotationCollector =
                (if (or print-annotations export-annotations)
                    ;; only add to the list of grobs in the engraver
                    ;; when we actually process them afterwards
-                   (begin
-                    ;; If there's a better label for the context overwrite the context-id property
-                    ;; which has originally been set to the directory name the input file is in
-                    ;; (because in some set-ups this is an indicator of the voice/part context).
-                    (if (or ctx-id (string=? ctx-id ""))
-                        (set! annotation (assoc-set! annotation "context-id" ctx-id)))
-                    ;; Get the name of the annotated grob type
-                    (set! annotation (assoc-set! annotation "grob-type" (grob-name grob)))
-                    ;; Initialize a 'grob-location' property as a sub-alist,
-                    ;; for now with a 'meter' property. This will be populated in 'finalize'.
-                    (set! annotation
-                          (assoc-set! annotation "grob-location"
-                            (assoc-set! '() "meter"
-                              (ly:context-property context 'timeSignatureFraction))))
-                    (set! grobs (cons (list grob annotation) grobs)))))))))
+                   (let ((ctx-id
+                          ;; Determine if there's
+                          ;; a) an explicit context name defined or
+                          ;; b) an implicit context name through the named Staff context
+                          (or (assoc-ref annotation "context")
+                              (annotation-context-label context))))
+                     ;; If there's a better label for the context overwrite the context-id property
+                     ;; which has originally been set to the directory name the input file is in
+                     ;; (because in some set-ups this is an indicator of the voice/part context).
+                     (if (string>? ctx-id "")
+                         (set! annotation (assoc-set! annotation "context-id" ctx-id)))
+                     ;; Get the name of the annotated grob type
+                     (set! annotation (assoc-set! annotation "grob-type" (grob-name grob)))
+                     ;; Initialize a 'grob-location' property as a sub-alist,
+                     ;; for now with a 'meter' property. This will be populated in 'finalize'.
+                     (set! annotation
+                           (assoc-set! annotation "grob-location"
+                             (assoc-set! '() "meter"
+                               (ly:context-property context 'timeSignatureFraction))))
+                     (set! grobs (cons (list grob annotation) grobs)))))))))
 
       ;; Iterate over collected grobs and produce a list of annotations
       ;; (when annotations are neither printed nor logged the list is empty).
