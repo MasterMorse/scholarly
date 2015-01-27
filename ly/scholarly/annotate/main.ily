@@ -91,7 +91,13 @@ annotationCollector =
       ;; and append annotation objects to the global annotations list
       (acknowledgers
        ((grob-interface engraver grob source-engraver)
-        (let ((annotation (ly:grob-property grob 'input-annotation)))
+        (let ((annotation (ly:grob-property grob 'input-annotation))
+              (ctx-id
+               ;; Determine if there's
+               ;; a) an explicit context name defined or
+               ;; b) an implicit context name through the named Staff context
+               (or (assoc-ref annotation "context")
+                   (annotation-context-label context))))
           ;; A grob is to be accepted when 'annotation *does* have some content
           (if (and (not (null-list? annotation))
                    (not (member
@@ -108,24 +114,27 @@ annotationCollector =
                  (if (or print-annotations export-annotations)
                      ;; only add to the list of grobs in the engraver
                      ;; when we actually process them afterwards
-                     (set! grobs (cons (list grob meter measure-length annotation)
-                                   grobs)))))))))
+                     (begin
+                      ;; If there's a better label for the context overwrite the context-id property
+                      ;; which has originally been set to the directory name the input file is in
+                      ;; (because in some set-ups this is an indicator of the voice/part context).
+                      (if (or ctx-id (string=? ctx-id ""))
+                          (set! annotation (assoc-set! annotation "context-id" ctx-id)))
+
+                      ;; Add properties to the annotation that have not been present in the music function
+                      (set! annotation (assoc-set! annotation "grob-type" (grob-name grob)))
+                      (set! annotation (assoc-set! annotation "beats-in-meter" (number-of-beats meter)))
+                      (set! annotation (assoc-set! annotation "measure-len" measure-length))
+                      (set! annotation (assoc-set! annotation "rhythmic-location" (location grob)))
+                      (set! grobs (cons (list grob annotation) grobs))))))))))
+
       ;; Iterate over collected grobs and produce a list of annotations
       ;; (when annotations are neither printed nor logged the list is empty).
       ((finalize trans)
        (begin
         (for-each
          (lambda (g)
-           (let* ((annotation (last g))
-                  (ctx-id
-                   ;; Determine if there's
-                   ;; a) an explicit context name defined or
-                   ;; b) an implicit context name through the named Staff context
-                   (or (assoc-ref annotation "context")
-                       (annotation-context-label context))))
-             ;; Here we add more properties that can only now be determined.
-             ;; Even more detailed informations (properties) will later be
-             ;; determined from these fields.
+           (let* ((annotation (last g)))
              ;
              ; TODO
              ; Make this more consistent:
@@ -135,17 +144,8 @@ annotationCollector =
              ; - determine which information has to be passed to that function
              ; - move appropriate properties *into* that meta property
              ;
-             ; - check which of this functionality can already be done in 'acknowledgers'
-             ;
+             ; Add location info, which seems only possible here
              (set! annotation (assoc-set! annotation "rhythmic-location" (location (first g))))
-             (set! annotation (assoc-set! annotation "grob-type" (grob-name (car g))))
-             (set! annotation (assoc-set! annotation "beats-in-meter" (number-of-beats (second g))))
-             (set! annotation (assoc-set! annotation "measure-len" (third g)))
-             ;; If there's a better label for the context overwrite the context-id property
-             ;; which has originally been set to the directory name the input file is in
-             ;; (because in some set-ups this is an indicator of the voice/part context).
-             (if (or ctx-id (string=? ctx-id ""))
-                 (set! annotation (assoc-set! annotation "context-id" ctx-id)))
 
              ;; add current annotation to the list of annotations
              (set! annotations (append annotations (list annotation)))))
