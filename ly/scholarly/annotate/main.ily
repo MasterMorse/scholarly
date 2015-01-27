@@ -29,17 +29,8 @@
 % Define (default) behaviour of colors, labels etc.
 \include "annotate-configuration.ily"
 
-% End configuration
-%%%%%%%%%%%%%%%%%%%
-
-% Return the label for the given context/part name
-% or #f if none is defined
-#(define (annotation-context-label context)
-   (let*
-    ((ctx (ly:context-id context)))
-    (or
-     (assoc-ref annotation-context-labels ctx)
-     ctx)))
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Helper functions to manage the annotation objects
 
 % Return the musical/rhythmical position of a given grob
 #(define (location grob)

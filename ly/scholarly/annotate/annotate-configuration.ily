@@ -239,24 +239,32 @@ setAnnotationPropertyLabel =
 %%%% Handling of labels for voice/context names
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% \annotate tries to determine a proper name for the
-% originating context. It does so by retrieving the
-% context-id property of the Staff context enclosing
-% the Voice context the annotation is entered in.
+% \annotate tries to determine a proper lable for the
+% musical context. It does so by in a three-step
+% fall-through solution.
 %
-% TODO:
-% This is not sufficiently reliable yet, I think.
+% 1) If the annotation defines a 'context' property
+%    this value is used.
+% 2) If the Staff-level context where the annotation
+%    is defined is explicitly named this name is used
+% 3) Without any explicit naming the directory name of
+%    the file in which the annotation is entered is used.
 %
-% If this Staff is not named explicitly the directory
-% name the input files is located in is used instead
-% because in some set-ups this may also be an indicator
-% for the musical part.
-% However, for pretty-printing or localizing \annotate
+% For pretty-printing or localizing \annotate
 % supports re-labelling of these context names.
 
 % Initialize empty alist.
 #(cond ((not (defined? 'annotation-context-labels))
         (define annotation-context-labels '())))
+
+% Return the label for the given context/part name
+% or the name of the context itself if no label is defined
+#(define (annotation-context-label context)
+   (let*
+    ((ctx (ly:context-id context)))
+    (or
+     (assoc-ref annotation-context-labels ctx)
+     ctx)))
 
 % Convenience function to add labels for context names.
 % Supply an alist with one pair for each instrument,
