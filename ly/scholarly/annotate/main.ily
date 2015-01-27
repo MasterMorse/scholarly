@@ -32,13 +32,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Helper functions to manage the annotation objects
 
-% Return the musical/rhythmical position of a given grob
-#(define (location grob)
-   (let ((col (get-paper-column grob)))
-     (if col ;; get-paper-column returns #f if no column found
-         (ly:grob-property col 'rhythmic-location)
-         (cons 0 (ly:make-moment 0/4)))))
-
 % Create custom grob properties
 % Modified function from "scm/define-grob-properties.scm" (provided by Paul Morris)
 #(define (cn-define-grob-property symbol type?)

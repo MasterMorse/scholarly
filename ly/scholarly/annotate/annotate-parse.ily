@@ -2,6 +2,19 @@
 % Helper functions for the annotation engraver
 % (provided by David Nalesnik)
 
+% Return the musical/rhythmical position of a given grob
+#(define (location grob)
+   (if (ly:grob? grob)
+
+   (let ((col (get-paper-column grob)))
+     (if col
+         (ly:grob-property col 'rhythmic-location)
+         ;; get-paper-column returns #f if no column found
+         ;; so we return an impossible value 'before the first beat'
+         (cons 0 (ly:make-moment 0/4))))
+   (ly:error "Requested rhythmic-location of a grob, but no grob provided")))
+
+
 #(define (ly:moment<=? mom1 mom2)
    (or (ly:moment<? mom1 mom2)
        (equal? mom1 mom2)))
