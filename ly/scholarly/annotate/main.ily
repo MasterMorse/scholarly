@@ -126,6 +126,17 @@ annotationCollector =
              ;; Here we add more properties that can only now be determined.
              ;; Even more detailed informations (properties) will later be
              ;; determined from these fields.
+             ;
+             ; TODO
+             ; Make this more consistent:
+             ; - set a property 'grob'
+             ; - set a property 'grob-location', retrieved by the rewritten function
+             ;   annotation-location-properties
+             ; - determine which information has to be passed to that function
+             ; - move appropriate properties *into* that meta property
+             ;
+             ; - check which of this functionality can already be done in 'acknowledgers'
+             ;
              (set! annotation (assoc-set! annotation "rhythmic-location" (location (first g))))
              (set! annotation (assoc-set! annotation "grob-type" (grob-name (car g))))
              (set! annotation (assoc-set! annotation "beats-in-meter" (number-of-beats (second g))))
