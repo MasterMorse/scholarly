@@ -60,11 +60,6 @@
        (ly:error "Requested rhythmic-location of a grob, but ~a is not a grob," grob)))
 
 
-% Calculate the rhythmic properties of an annotation
-%
-% TODO
-% Rewrite this so it takes the grob as its argument
-%
 
 % Define beat-string as a procedure so we can later make it configurable
 % or at least allow the user to redefine this single procedure
@@ -82,6 +77,9 @@
            " "
            (number->string beat-fraction)))))
     beat-str))
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Calculate the rhythmic properties of an annotation
 
 #(define (grob-location-properties grob props)
    "Populate the alist 'props' with more details about the rhythmic location of 'grob'.
