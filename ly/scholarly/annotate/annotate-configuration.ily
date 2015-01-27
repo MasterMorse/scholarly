@@ -192,6 +192,19 @@ setAnnotationTypeLabel =
 % If the functionality has to be adapted to a given project the above alist
 % can be modified directly.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% using lilyglyphs for grob-location
+
+% Initialize configuration variable
+#(cond ((not (defined? 'format-beat-string-with-lilyglyphs))
+        (define format-beat-string-with-lilyglyphs #f)))
+
+% Convenience function to set the behaviour
+useLilyglyphsForBeatString =
+#(define-void-function (parser location active)
+   (boolean?)
+   (set! format-beat-string-with-lilyglyphs active))
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Handling of labels for property fields
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

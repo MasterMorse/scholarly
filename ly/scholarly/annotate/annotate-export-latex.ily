@@ -84,6 +84,47 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
           (- (string-length (last result)) 1))))
      result))
 
+% Lookup list for lilyglyphs representations of rhythmic values
+#(define lilyglyphs-rhythmic-values
+   '((1 . "\\wholeNote")
+     (1/2 . "\\halfNote")
+     (1/4 . "\\crotchet")
+     (1/8 . "\\quaver")
+     (1/16 . "\\semiquaver")
+     (1/32 . "\\semidemiquaver")))
+
+% Lookup a lilyglyphs representation for a rhythmic fraction
+% or return a 'NA' string and issue a warning
+% This is probably mostly an issue with the display of beat fractions
+#(define (lilyglyphs-lookup frac)
+   (ly:message (format "~a" frac))
+   (or (assoc-ref lilyglyphs-rhythmic-values frac)
+       ; Currently we don't provide any intelligent handling of
+       ; values that are not in the above list.
+       (begin
+        (ly:warning (format "Did not find a lilyglyphs representation for ~a" frac))
+       "NA")))
+
+% If requested format the measure position using lilyglyphs commands
+#(define (lilyglyphs-beat-string loc-props)
+   (let*
+    ((meter (assoc-ref loc-props "meter"))
+     (beat-length (/ 1 (cdr meter)))
+     (beat-lily (lilyglyphs-lookup beat-length))
+     (our-beat (assoc-ref loc-props "our-beat"))
+     (beat-string (format "~a.\\,~a" our-beat beat-lily))
+     (beat-fraction (assoc-ref loc-props "beat-fraction"))
+     (beat-part (assoc-ref loc-props "beat-part")))
+
+    (if (= 0 beat-fraction)
+        beat-string
+        (format "~a,\\,~a" beat-string
+          (let*
+           ((part-numerator (+ 1 (ly:moment-main-numerator beat-part)))
+            (sub-beat-length (/ 1 (ly:moment-main-denominator beat-part))))
+            (format "~a. ~a" part-numerator
+              (lilyglyphs-lookup sub-beat-length)))))))
+
 % Generate and write annotations to a LaTeX file
 #(define (export-annotations-latex)
    ;
@@ -137,11 +178,10 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
        (append-to-output-stringlist
         (format "    {~a}{~a}"
           (assoc-ref loc-props "measure-no")
-          ;
-          ; TODO:
-          ; beat-string isn't really suitable for the LaTeX export yet
-          ;
-          (assoc-ref loc-props "beat-string")))
+          (if format-beat-string-with-lilyglyphs
+              (lilyglyphs-beat-string loc-props)
+              (beat-string loc-props))))
+
        ;; Affected context
        (append-to-output-stringlist
         (format "    {~a}"
