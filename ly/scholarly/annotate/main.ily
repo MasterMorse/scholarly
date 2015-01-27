@@ -23,15 +23,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-% Develop the interface to \annotate
-% See https://github.com/openlilylib/lilypond-doc/wiki/Documenting-musical-content for discussion
-
 %{
-  \annotate
-  Enter annotations directly in the music input
-  Depending on configuration variables the engraver
-  - colors affected objects depending on the type of annotation
-  - prints a message on the console
+  \annotate - main file
+  This file contains the "collector" and "processor" engravers for annotations
+  and the interface music functions to enter annotations in LilyPond input files.
+
   TODO:
   - generate clickable links when writing to file
   - enable the music function to apply editorial functions
@@ -40,10 +36,6 @@
     and be configurable to a high degree (this is a major task).
   - provide an infrastructure for custom annotation types
 
-  Credits:
-  - \annotate etc.: Urs Liska, with help from lilypond-user
-  - annotationEngraver: David Nalesnik, adapted by Urs Liska
-  - custom grob properties: Paul Morris
 %}
 
 \version "2.17.18"

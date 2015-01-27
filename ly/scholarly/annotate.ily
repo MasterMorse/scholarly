@@ -22,7 +22,9 @@
 %                                                                             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+%{
+  This is the main entry file for the \annotate module
+%}
 
 \version "2.18.0"
 

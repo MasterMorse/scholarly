@@ -23,7 +23,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %{
-  Define configuration variables and convenience functions for \annotate
+  This file defines most of the configuration infrastructure for \annotate
 %}
 
 %%%%%%%%%%%%%%%%%%%%%%%

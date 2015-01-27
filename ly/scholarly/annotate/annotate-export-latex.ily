@@ -22,7 +22,9 @@
 %                                                                             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% File with definitions for exporting annotations to latex
+%{
+  Output annotations as LaTeX code
+%}
 
 #(use-modules (ice-9 regex))
 

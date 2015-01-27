@@ -22,6 +22,11 @@
 %                                                                             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%{
+  This files contains utility routines to handle rhythmic-location properties.
+  It is written for \annotate but the functions should be generally usable
+%}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Helper functions for the annotation engraver
 % (provided by David Nalesnik)
