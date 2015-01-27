@@ -12,7 +12,7 @@
          ;; get-paper-column returns #f if no column found
          ;; so we return an impossible value 'before the first beat'
          (cons 0 (ly:make-moment 0/4))))
-   (ly:error "Requested rhythmic-location of a grob, but no grob provided")))
+   (ly:error "Requested rhythmic-location of a grob, but ã is not a grob," grob)))
 
 
 #(define (ly:moment<=? mom1 mom2)

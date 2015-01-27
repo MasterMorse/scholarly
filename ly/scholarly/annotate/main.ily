@@ -28,7 +28,7 @@
 
 % Include factored out functionality
 \include "annotate-configuration.ily"
-\include "annotate-parse.ily"
+\include "parse-rhythmic-location.ily"
 \include "annotate-sort.ily"
 \include "annotate-format.ily"
 \include "annotate-export.ily"
