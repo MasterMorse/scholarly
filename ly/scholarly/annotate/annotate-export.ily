@@ -44,6 +44,14 @@
           (cmd m)))
     msgs))
 
+% create a basename string to be used when building output file names
+#(define annotation-out-basename "")
+setAnnotationOutputBasename =
+#(define-void-function (parser location)()
+   (set! annotation-out-basename (ly:parser-output-name parser)))
+\setAnnotationOutputBasename
+
+
 % Take the stringlist 'annotate-export-stringlist
 % and write it out to a file
 #(define (write-output-file ext)

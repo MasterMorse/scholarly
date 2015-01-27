@@ -60,13 +60,6 @@
 % to pass information from the music function to the engraver
 #(cn-define-grob-property 'input-annotation input-annotation?)
 
-% create a basename string to be referred to later
-#(define annotation-out-basename "")
-setAnnotationOutputBasename =
-#(define-void-function (parser location)()
-   (set! annotation-out-basename (ly:parser-output-name parser)))
-\setAnnotationOutputBasename
-
 \include "annotate-parse.ily"
 
 \include "annotate-sort.ily"
