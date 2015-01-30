@@ -76,7 +76,7 @@ musicTwo = \relative c {
     type = "custom-annotation"
     % uncomment the following to override the default value
     %context = "All instruments"
-    message = "See \what is @\possible[opts]{args}@"
+    message = "See \what is @\emph{possible}@"
     number-property = 12.3
     original-pitch = cis
     original-music = { c d e-> f }
