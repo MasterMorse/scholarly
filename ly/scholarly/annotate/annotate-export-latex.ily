@@ -75,7 +75,8 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
 % formatted as a list of key=value arguments
 #(define (format-latex-remaining-properties type props loc-props)
    (let ((cmd
-          (assoc-ref annotation-type-latex-commands type))
+          (or (assoc-ref annotation-type-latex-commands type)
+              "\\annotation"))
          (props
           (map
            (lambda (p)
@@ -129,7 +130,7 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
        ; values that are not in the above list.
        (begin
         (ly:warning (format "Did not find a lilyglyphs representation for ~a" frac))
-       "NA")))
+        "NA")))
 
 % If requested format the measure position using lilyglyphs commands
 #(define (lilyglyphs-beat-string loc-props)
@@ -148,8 +149,8 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
           (let*
            ((part-numerator (+ 1 (ly:moment-main-numerator beat-part)))
             (sub-beat-length (/ 1 (ly:moment-main-denominator beat-part))))
-            (format "~a. ~a" part-numerator
-              (lilyglyphs-lookup sub-beat-length)))))))
+           (format "~a. ~a" part-numerator
+             (lilyglyphs-lookup sub-beat-length)))))))
 
 % Generate and write annotations to a LaTeX file
 #(define (export-annotations-latex)
@@ -225,6 +226,14 @@ latex-escape-regexp = #(make-regexp latex-escape-regexpstring)
           (indent-multiline-latex-string
            (escape-string-latex
             (assoc-ref ann "message")))))
+       
+       ;; For a custom annotation we have to append
+       ;; the type as 7th argument
+       (let ((type (assoc-ref annotation-type-latex-commands
+                     (assoc-ref ann "type"))))
+         (if (not type)
+             (append-to-output-stringlist
+              (format "    {~a}" (assoc-ref ann "type")))))
        ;; add newline to annotation entry
        (append-to-output-stringlist " ")))
     annotations)
